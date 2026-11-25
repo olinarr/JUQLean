@@ -34,9 +34,9 @@ The checked proofs use only `propext`, `Classical.choice`, and `Quot.sound`, wit
 
 ## References
 
-- Martin Lackner and Oliviero Nardi. *Avoiding Overrepresentation: Upper Quota Axioms for Committee Voting*. 16th Multidisciplinary Workshop on Advances in Preference Handling (M-PREF 2025), 2025. Original workshop paper.
-- Oliviero Nardi. *Multi-Winner Voting: Representation, Manipulation, Deliberation*. PhD thesis, TU Wien, 2026. [PDF](https://olinarr.github.io/files/publications/pdf/OlivieroNardiPhD2026.pdf). Preliminaries and Representation.
-- Anton Baychkov, Martin Lackner, Jan Maly, Oliviero Nardi, and Jannik Peters. *Beyond Lower Quota: Avoiding Overrepresentation in Multi-Winner Voting*. EC 2026. [DOI](https://doi.org/10.1145/3821539.3827750).
+- Oliviero Nardi. *Multi-Winner Voting: Representation, Manipulation, Deliberation*. PhD thesis, TU Wien, 2026. [PDF](https://olinarr.github.io/files/publications/pdf/OlivieroNardiPhD2026.pdf).
+- Martin Lackner and Oliviero Nardi. *Avoiding Overrepresentation: Upper Quota Axioms for Committee Voting*. 16th Multidisciplinary Workshop on Advances in Preference Handling (M-PREF 2025), 2025. [PDF](https://olinarr.github.io/files/publications/pdf/LacknerAndNardiMPREF2025.pdf). 
+- Anton Baychkov, Martin Lackner, Jan Maly, Oliviero Nardi, and Jannik Peters. *Beyond Lower Quota: Avoiding Overrepresentation in Multi-Winner Voting*. EC 2026. [PDF](https://olinarr.github.io/files/publications/pdf/BaychkovEtAlEC2026.pdf), [ArXiV](https://arxiv.org/abs/2606.19968).
 
 ## License
 
