@@ -1,0 +1,223 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern,microtype}
+\usepackage[margin=27mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,nicefrac}
+\usepackage[hidelinks]{hyperref}
+\usepackage[numbers]{natbib}
+\hypersetup{pdftitle={Justified Upper Quota and Adams-Thiele},pdfauthor={Oliviero Nardi}}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+% The notation of the Preliminaries and Representation chapters.
+\newcommand{\voters}{N}
+\newcommand{\candidates}{C}
+\newcommand{\approfile}{A}
+\newcommand{\app}[1]{A(#1)}
+\newcommand{\profiles}{\mathcal A}
+\newcommand{\committee}{W}
+\newcommand{\committees}{\mathcal W}
+\newcommand{\kcommittees}{\mathcal W_k}
+\newcommand{\weight}{\omega}
+\newcommand{\num}{\ell}
+\newcommand{\nats}{\mathbb N}
+\newcommand{\nonNegReals}{\mathbb R_{\ge0}}
+\newcommand{\Thiele}{\textnormal{\textsc{Thl}}}
+\newcommand{\score}{\operatorname{score}}
+\newcommand{\quota}{q}
+\newcommand{\Adams}{\textnormal{Adams-Thiele}}
+\newcommand{\vect}[1]{\left(#1\right)}
+\newcommand{\ceil}[1]{\left\lceil#1\right\rceil}
+\newcommand{\powerset}[1]{2^{#1}}
+\newcommand{\set}[1]{\{#1\}}
+\newcommand{\setcompr}[2]{\{#1:#2\}}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\newtheorem{definition}{Definition}
+\newtheorem*{adamsjuq}{Theorem (\texttt{AdamsJUQ})}
+\newtheorem*{onlyadamsjuq}{Theorem (\texttt{OnlyAdamsJUQ})}
+\title{Justified Upper Quota and Adams-Thiele\\[3pt]
+  \large Definitions and theorem statements}
+\author{Oliviero Nardi}
+\date{November 2026}
+\begin{document}
+\maketitle
+\vspace{-1em}
+This note states \texttt{AdamsJUQ} and \texttt{OnlyAdamsJUQ} from the
+accompanying Lean interface.
+The original paper is my work with Martin Lackner, \emph{Avoiding
+Overrepresentation: Upper Quota Axioms for Committee Voting}, presented at
+M-PREF 2025~\cite{lacknernardi2025}. This work was developed further in our
+EC 2026 paper~\cite{baychkov2026} and my thesis~\cite{nardi2026}.
+The definitions below use the notation and wording of the Preliminaries and
+Representation chapters of the thesis. More details, examples, and proofs
+are available in these sources.
+I wrote the Lean definitions and theorem statements; the proofs were
+autoformalised with Codex and checked by Lean.
+Codex was given the proofs included in my thesis as a starting point,
+but the formalised proofs may differ from the arguments in the thesis.
+
+\section{Context}
+
+These results pertain to the theory of multi-winner elections.
+Here, we are given a set of candidates and must select a fixed number of them.
+For example, consider parliamentary or committee elections. Voters express their preferences
+via approval ballots; that is, they can approve as many candidates as they wish. 
+Our contribution is a formalisation of the notion of \emph{overrepresentation}, that is,
+a scenario in which an interest group has a disproportionally-large influence on the result of the election.
+For example, this models situations in which a minority ends up controlling a majority of the parliament.
+Here, we formalise a theorem stating that, among a class of natural voting rules,
+there is exactly one that avoids overrepresentation (under our definition).
+
+\section{The Model and the Rules}
+The set $\nats=\{1,2,\ldots\}$ denotes the positive integers, and let
+$[\num]=\{1,\ldots,\num\}$ for $\num\in\nats$.
+We indicate as $\candidates=\{a,b,\ldots\}$ the finite set of
+\emph{candidates} with $|\candidates|=m$. Furthermore, we assume that there
+are $n\in\nats$ \emph{voters}, and that the set of voters is $\voters=[n]$.
+We are also given a target \emph{committee size}, indicated as $k\in[m]$.
+The preferences of the voters are given by the so-called \emph{profile}
+$\approfile\colon\voters\to\powerset{\candidates}$. In other words, each
+voter $i\in\voters$ submits an approval ballot $\approfile(i)\subseteq\candidates$.
+We typically denote
+$\approfile$ with a vector notation, that is,
+$\approfile=\vect{\app{1},\ldots,\app{n}}$.
+Given a candidate $c\in\candidates$, we define
+$\voters(c)=\{i\in\voters:c\in\app{i}\}$ as the set of its supporters.
+Write $\profiles$ for the set of all profiles.
+
+A \emph{committee} is a set $\committee\subseteq\candidates$ of size at most
+$k$. If $|\committee|=k$, we say that $\committee$ is an \emph{exhaustive}
+committee. We denote as $\committees$ the set of all committees and as
+$\kcommittees$ the set of all exhaustive committees. Given that many profiles
+naturally lead to ties, we formalise a voting rule as a function $F$ that returns
+a nonempty set of committees, the set of (tied) winning committees:
+\[F:\profiles\rightarrow\powerset{\kcommittees}\setminus\{\varnothing\}.\]
+Given two voting rules $F$ and $G$, we say that $F$ refines $G$ if, for every
+$\approfile\in\profiles$, it holds that $F(\approfile)\subseteq G(\approfile)$.
+
+We now define our family of voting rules. First, we need some auxiliary notions:
+
+\begin{definition}\label{def:weight-functions}
+	A \emph{weight function} is a function
+  $\weight\colon\nats\rightarrow\nonNegReals$ such that $\weight(1)=1$ and, for
+  every $\num\in\nats$, $\weight(\num)\geq \weight(\num+1)$. We sometimes write
+  weight functions as vectors.
+\end{definition}
+
+The following is a standard family of voting rules \cite{abcbook}, called Thiele rules.
+
+\begin{definition}\label{def:Thiele}
+  Given $\approfile\in\profiles$, $i\in\voters$ and
+  $\committee\in\kcommittees$, we define
+  \[
+    \score_{\weight}(\app{i}, \committee) = \sum_{\num=1}^{\lvert\app{i}\cap
+    \committee\rvert}\weight(\num)\quad\quad\text{and}\quad\quad\score_{\weight}(\approfile,
+    \committee)=\sum_{j\in \voters}\score_{\weight}(\app{j}, \committee).
+  \]
+  The \emph{Thiele rule} corresponding
+  to $\weight$ is then
+  \[
+    \Thiele_\weight(\approfile) =
+    \argmax_{\committee\in\kcommittees}\Big(\score_{\weight}(\approfile,\committee)\Big).
+  \]
+\end{definition}
+
+We extend this class to \emph{composite} Thiele rules.
+Intuitively, composite Thiele rules are defined through a sequence of Thiele
+rules and work in stages. First, we compute the result of the first Thiele rule.
+Then, at each subsequent stage, we apply the next rule to break the ties of
+the previous stage.
+
+\begin{definition}
+  Recall the definition of weight functions
+  and Thiele rules (Definitions~\ref{def:weight-functions} and~\ref{def:Thiele}).
+  Recall that the Thiele rule $\Thiele_\weight$ picks
+  all committees $\committee$ maximising
+  \[
+\score_{\weight}(\approfile,
+    \committee)=
+    \sum_{i\in\voters}\sum_{\num=1}^{\lvert\app{i}\cap
+    \committee\rvert}\weight(\num).
+  \]
+  Given two weight functions $\weight_1$ and $\weight_2$, we define the composition
+  \[
+    \left(\Thiele_{\weight_2}\circ \Thiele_{\weight_1}\right)(\approfile) = \argmax_{\committee\in
+    \Thiele_{\weight_1}\vect{\approfile}}\ \score_{\weight_2}\mathclose{\vect{\approfile, \committee}}.
+  \]
+  For any sequence of weight functions $\boldsymbol{\weight}=\vect{\weight_1,\weight_2,\ldots}$
+  of length $\num\in\nats\cup\{\infty\}$,
+  the
+  corresponding \emph{$\num$-composite Thiele rule} is
+  \[
+    \Thiele_{\boldsymbol{\weight}}(\approfile) = \bigcap_{i\in[\num]}
+    (\Thiele_{\weight_i}\circ \cdots \circ \Thiele_{\weight_1})(\approfile).
+  \]
+  Note that if $\boldsymbol{\weight}=\vect{\weight_1,\ldots,
+  \weight_\num}$ is finite then the
+  above collapses to
+  \[
+    \Thiele_{\boldsymbol{\weight}}(\approfile) =
+    \left(\Thiele_{\weight_\num}\circ \cdots \circ \Thiele_{\weight_1}\right)(\approfile)
+  \]
+  and that this is well-defined even for sequences of length $\num = \infty$ as there are
+  only finitely many committees.
+\end{definition}
+
+We finally introduce our main voting rule.
+
+\begin{definition}\label{def:adams-thiele}
+	\emph{\Adams} is the $2$-composite Thiele rule given by
+  $\weight_1=\vect{1,0,0,\ldots}$ and
+  $\weight_2=\vect{1,1,\nicefrac{1}{2},\,\nicefrac{1}{3},
+  \,\ldots}$.
+\end{definition}
+Observe that \Adams{} first maximises the number of covered voters, that is,
+voters approving at least one candidate in the committee (just as the Chamberlin-Courant rule does \cite{abcbook}).
+Then, it proceeds with a weight function similar to Proportional Approval Voting rule \cite{abcbook}.
+
+\section{Justified Upper Quota and the Formalised Theorems}
+For a set of voters $\voters^\prime\subseteq\voters$, we define its quota as
+\[
+  \quota(\voters^\prime)
+  =\frac{k\cdot|\voters^\prime|}{|\voters|}.
+\]
+We call $\ceil{\quota(\voters^\prime)}$ the upper quota of
+$\voters^\prime$. We finally define $\quota_c=\quota(\voters(c))$ for a
+candidate $c\in\candidates$.
+
+\begin{definition}\label{def:JUQ}
+	Committee $\committee$ satisfies \emph{JUQ} if,
+  whenever there is a $c\in \committee$ such that
+  \begin{align*}
+    \lvert\app{i}\cap\committee\rvert
+    &> \ceil{\quota_c}
+    &&\text{for all } i\in\voters(c), \\
+    \intertext{then there exists no $d\in \candidates\setminus \committee$
+    and nonempty $\voters^\prime\subseteq\voters(d)$ such that}
+    \lvert\app{i}\cap((\committee\cup\{d\})\setminus\{c\})\rvert
+    &\le \ceil{\quota(\voters^\prime)}
+    &&\text{for all } i\in\voters^\prime.
+  \end{align*}
+\end{definition}
+Note that we allow for arbitrary subsets $\voters^\prime$ of $\voters(d)$ in
+our definition: for us it is sufficient that there exists some nonempty
+subgroup of the approvers of $d$ who could be awarded an extra candidate without
+breaching their upper quota. A rule satisfies JUQ if every committee it returns
+does so.
+
+\begin{adamsjuq}
+	\Adams{} satisfies JUQ for every choice of $m\in\nats$, $n\in\nats$, and $k\in[m]$.
+\end{adamsjuq}
+
+\begin{onlyadamsjuq}
+Fix a sequence of weight functions
+$\boldsymbol{\weight}$. If $\Thiele_{\boldsymbol{\weight}}$ satisfies JUQ
+for every choice of $m\in\nats$, $n\in\nats$, and $k\in[m]$, then
+$\Thiele_{\boldsymbol{\weight}}$ is a refinement of \Adams.
+\end{onlyadamsjuq}
+
+The same sequence $\boldsymbol{\weight}$ is fixed across all election sizes.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+\end{document}
