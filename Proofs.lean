@@ -85,12 +85,12 @@ def SatisfiesJUQ (E : Election V C k) (W : Finset C) : Prop :=
   ∀ c d S, ¬ JUQViolation E W c d S
 
 /-- Low-level subset relation for raw local rule functions.
-Use `Refines` in `SourceRules` to compare valid rules on a source domain. -/
+Use `Refines` below to compare valid rules on a source domain. -/
 def RawRefines (F G : Election.RawRule V C k) : Prop :=
   ∀ E, F E ⊆ G E
 
 /-- Low-level outcome property for raw local functions, without domain restrictions.
-Use `RuleSatisfies` in `SourceRules` for valid source rules. -/
+Use `RuleSatisfies` below for valid source rules. -/
 def RawRuleSatisfies (F : Election.RawRule V C k)
     (P : Election V C k → Finset C → Prop) : Prop :=
   ∀ E W, W ∈ F E → P E W
@@ -936,11 +936,11 @@ def FamilySatisfiesAUQ (F : VotingRuleFamily GeneralProfile) : Prop :=
     (k : ℕ) (E : Election V C k), ApportionmentProfile E →
     ∀ W ∈ (F V C k).toABCRule E, SatisfiesAUQ E W
 
-/-- The global statement of Theorem 6. Proved in `UpperQuotaCharacterization`. -/
+/-- The global statement of Theorem 6. Proved below as `upperQuotaCharacterization`. -/
 def UpperQuotaCharacterization (ws : CompositeWeights) : Prop :=
   FamilySatisfiesAUQ (compositeFamily ws) ↔ FamilyRefines (compositeFamily ws) adamsFamily
 
-/-- The global JUQ corollary. Proved in `UpperQuotaCharacterization`. -/
+/-- The global JUQ corollary. Proved below as `juqCharacterization`. -/
 def JUQCharacterization (ws : CompositeWeights) : Prop :=
   FamilySatisfiesJUQ (compositeFamily ws) ↔ FamilyRefines (compositeFamily ws) adamsFamily
 
@@ -1167,13 +1167,14 @@ theorem refinement_adamsFamily_satisfies_juq {F : VotingRuleFamily GeneralProfil
   FamilySatisfiesJUQ.of_refines hF adamsFamily_satisfies_juq
 
 /-- The sufficiency direction of Theorem 3.6, using only the supported
-apportionment test class. Necessity is proved in `UpperQuotaCharacterization`. -/
+apportionment test class. Necessity is proved below as `AUQ_implies_refines_adams`. -/
 theorem refinement_adamsFamily_satisfies_auq {F : VotingRuleFamily GeneralProfile}
     (hF : FamilyRefines F adamsFamily) : FamilySatisfiesAUQ F :=
   family_auq_of_juq F (refinement_adamsFamily_satisfies_juq hF)
 
 /-- Logical assembly of both global characterizations from AUQ necessity.
-The unconditional results are in `UpperQuotaCharacterization`. -/
+The unconditional results are proved below as `upperQuotaCharacterization` and
+`juqCharacterization`. -/
 theorem characterizations_of_auq_necessity (ws : CompositeWeights)
     (hnecessary : FamilySatisfiesAUQ (compositeFamily ws) →
       FamilyRefines (compositeFamily ws) adamsFamily) :
