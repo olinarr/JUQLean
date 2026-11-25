@@ -1,8 +1,8 @@
 # JUQLean
 
-This repository formalizes results on Adams-Thiele and justified upper quota (JUQ). The work originates in my M-PREF 2025 paper with Martin Lackner and was developed further in our EC 2026 paper and my PhD thesis.
+This repository formalises results on Adams-Thiele and justified upper quota (JUQ). The work originates in my M-PREF 2025 paper with Martin Lackner and was developed further in our EC 2026 paper and my PhD thesis.
 
-I wrote the definitions and theorem statements in [Interface.lean](Interface.lean). The proofs were autoformalized with Codex and checked by Lean. They may differ from the arguments in the paper and thesis.
+I wrote the definitions and theorem statements in [Interface.lean](Interface.lean). The proofs were autoformalised with Codex and checked by Lean. Codex was given the proofs included in my thesis as a starting point, but the formalised proofs may differ from the arguments in the thesis.
 
 There are only two Lean source files:
 
